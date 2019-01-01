@@ -4,6 +4,7 @@ Give a quiz from a db file
 
 ## Layout
 
+```
 +----------+
 | Question |
 +----------+
@@ -11,4 +12,4 @@ Give a quiz from a db file
 +----------+
 | Result   |
 +----------+
-
+```
