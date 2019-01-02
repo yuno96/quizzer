@@ -13,3 +13,6 @@ Give a quiz from a db file
 | Result   |
 +----------+
 ```
+
+## References
+1. http://pythonstudy.xyz/python/article/405-파이썬-엑셀-사용하기
