@@ -22,9 +22,11 @@ class Quizzer:
 		#self.LOCK_FILE = os.path.join(gettempdir(), 'quizzer-flock')
 		self.HEADLIST_MAX = 64
 		self.root.title('quizzer')
-		self.qna_pool = {}
 		self.q_str = StringVar()
 		self.fd_excel = None
+		self.qna_pool = {}
+		self.qna_idx = 0
+		self.qna_sum = 0
 
 		self.logging.basicConfig(level=logging.DEBUG,
 			format='%(levelname)s:%(filename)s:%(funcName)s:%(lineno)d:%(message)s')
@@ -32,12 +34,12 @@ class Quizzer:
 		# MENU
 		## File
 		self.menubar = Menu(root)
-		menu_file = Menu(self.menubar)
+		menu_file = Menu(self.menubar, tearoff=0)
 		menu_file.add_command(label='Open DB', command=self.open_db)
 		menu_file.add_command(label='Exit', command=self.root.quit)
 		self.menubar.add_cascade(label='File', menu=menu_file)
 		## Help
-		about_menu = Menu(self.menubar)
+		about_menu = Menu(self.menubar, tearoff=0)
 		about_menu.add_command(label='About', command=self.show_about)
 		self.menubar.add_cascade(label='Help',  menu=about_menu)
 		root.config(menu=self.menubar)
@@ -56,7 +58,7 @@ class Quizzer:
 		tmp.grid(row=1, column=0)
 		self.myans = Entry(root)
 		self.myans.grid(row=1, column=1, sticky=W+E)
-		self.myans.bind('<Enter>', self.eval_myans)
+		self.myans.bind('<Return>', self.eval_myans)
 
 		self.ans = Entry(root, bg='lightgray')
 		self.ans.grid(row=2, column=1, sticky=W+E)
@@ -67,6 +69,16 @@ class Quizzer:
 		\rhttps://github.com/yuno96/quizzer.git
 		'''
 		showinfo('About', about_msg)
+
+	def put_qna(self):
+		alist = self.qna_pool[self.qna_idx]
+		self.text.insert(INSERT, alist[0])
+		self.q_str.set('Question %02d/%02d:' % 
+				(self.qna_idx, self.qna_sum))
+		self.myans.focus_set()
+
+		self.qna_idx += 1
+		return alist
 
 	def open_db(self):
 		self.logging.debug('yep')
@@ -85,17 +97,17 @@ class Quizzer:
 		# Get active sheet
 		ws = self.fd_excel.active
 		#ws = self.fd_excel.get_sheet_by_name('Sheeet')
-		cnt = 0
+		self.qna_sum = 0
 		for r in ws.rows:
 			if not r[0].value:
 				continue
-			self.qna_pool[cnt] = [r[0].value, r[1].value]
-			cnt += 1
+			self.qna_pool[self.qna_sum] = [r[0].value, r[1].value]
+			self.qna_sum += 1
 			print ('%s %s' % (r[0].value, r[1].value))
-		self.fd_excel.close()
+		if 'close' in dir(self.fd_excel):
+			self.fd_excel.close()
 
-		print (self.qna_pool)
-		self.q_str.set('Question 0/%d:'%cnt)
+		self.put_qna()
 
 	def eval_myans(self):
 		self.logging.debug('yep')
