@@ -27,6 +27,8 @@ class Quizzer:
 		self.qna_pool = {}
 		self.qna_idx = 0
 		self.qna_sum = 0
+		self.right_ans = ''
+		self.qna_toggle = False
 
 		self.logging.basicConfig(level=logging.DEBUG,
 			format='%(levelname)s:%(filename)s:%(funcName)s:%(lineno)d:%(message)s')
@@ -70,15 +72,40 @@ class Quizzer:
 		'''
 		showinfo('About', about_msg)
 
-	def put_qna(self):
-		alist = self.qna_pool[self.qna_idx]
-		self.text.insert(INSERT, alist[0])
-		self.q_str.set('Question %02d/%02d:' % 
-				(self.qna_idx, self.qna_sum))
-		self.myans.focus_set()
+	def put_color(self, obj, color):
+		obj.config({'background':color})
 
-		self.qna_idx += 1
-		return alist
+	def clear_widget(self):
+		self.text.delete('1.0', END)
+		self.ans.delete(0, END)
+		self.myans.delete(0, END)
+		self.put_color(self.myans, 'white')
+
+	def clear_all(self):
+		self.clear_widget()
+		self.right_ans = ''
+		self.qna_toggle = False
+		self.qna_idx = 0
+		self.qna_sum = 0
+
+	def put_qna(self):
+		self.clear_widget()
+		'''
+		if self.qna_idx >= self.qna_sum-1:
+			showinfo('info', 'You have done the Quiz.')
+			return
+		'''
+		try:
+			alist = self.qna_pool[self.qna_idx]
+			self.text.insert(INSERT, alist[0])
+			self.q_str.set('Question %02d/%02d:' % 
+					(self.qna_idx+1, self.qna_sum))
+			self.myans.focus_set()
+		except:
+			showinfo('info', 'You have done the Quiz.')
+			return ''
+
+		return alist[1]
 
 	def open_db(self):
 		self.logging.debug('yep')
@@ -89,9 +116,10 @@ class Quizzer:
 			self.logging.warning('There is nofile')
 			return
 
-		if self.fd_excel:
+		if self.fd_excel and 'close' in dir(self.fd_excel):
 			self.fd_excel.close()
 
+		self.clear_all()
 		self.fd_excel = openpyxl.load_workbook(fname)
 		self.logging.debug(type(self.fd_excel))
 		# Get active sheet
@@ -107,11 +135,25 @@ class Quizzer:
 		if 'close' in dir(self.fd_excel):
 			self.fd_excel.close()
 
-		self.put_qna()
+		self.right_ans = self.put_qna().strip()
 
-	def eval_myans(self):
-		self.logging.debug('yep')
+	def the_answer_is(self, my_ans, right_ans):
+		mycolor = 'red'
+		if my_ans == right_ans:
+			mycolor = 'lightblue'
+		self.put_color(self.myans, mycolor) 
+		self.ans.insert(INSERT, right_ans)
 
+	def eval_myans(self, event):
+		self.logging.debug('toggle=%s idx=%d', self.qna_toggle, self.qna_idx)
+		if not self.qna_toggle:
+			self.the_answer_is(self.myans.get().strip(), 
+					self.right_ans)
+		else:
+			self.qna_idx += 1
+			self.right_ans = self.put_qna().strip()
+
+		self.qna_toggle = not self.qna_toggle
 
 	def run(self):
 		self.logging.debug('run')
