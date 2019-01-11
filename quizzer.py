@@ -11,6 +11,7 @@ from tkinter import *
 import openpyxl
 from tkinter.messagebox import showinfo
 from tkinter import filedialog
+import random
 
 class Quizzer:
 	def __init__(self, root=None):
@@ -47,7 +48,7 @@ class Quizzer:
 		root.config(menu=self.menubar)
 
 		# BODY
-		self.q_str.set('Q0:Q0')
+		self.q_str.set('Question 00/00')
 		tmp = Label(root, textvariable=self.q_str)
 		tmp.grid(row=0, column=0)
 		sbar = Scrollbar(root)
@@ -64,6 +65,12 @@ class Quizzer:
 
 		self.ans = Entry(root, bg='lightgray')
 		self.ans.grid(row=2, column=1, sticky=W+E)
+
+		# CheckButton
+		self.is_random = IntVar()
+		self.cb = Checkbutton(root, text='Random', variable=self.is_random)
+		self.cb.grid(row=3, column=1)
+
 
 	def show_about(self):
 		about_msg = '''
@@ -126,14 +133,22 @@ class Quizzer:
 		ws = self.fd_excel.active
 		#ws = self.fd_excel.get_sheet_by_name('Sheeet')
 		self.qna_sum = 0
+		tmp_pool = {}
 		for r in ws.rows:
 			if not r[0].value:
 				continue
-			self.qna_pool[self.qna_sum] = [r[0].value, r[1].value]
+			tmp_pool[self.qna_sum] = [r[0].value, r[1].value]
 			self.qna_sum += 1
-			print ('%s %s' % (r[0].value, r[1].value))
+			#print ('%s %s' % (r[0].value, r[1].value))
 		if 'close' in dir(self.fd_excel):
 			self.fd_excel.close()
+
+		if self.is_random.get():
+			vals = list(tmp_pool.values())
+			random.shuffle(vals)
+			self.qna_pool = dict(zip(tmp_pool.keys(), vals))
+		else:
+			self.qna_pool = tmp_pool
 
 		self.right_ans = self.put_qna().strip()
 
