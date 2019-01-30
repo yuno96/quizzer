@@ -12,6 +12,7 @@ import openpyxl
 from tkinter.messagebox import showinfo
 from tkinter import filedialog
 import random
+from tkfontchooser import askfont
 
 class Quizzer:
 	def __init__(self, root=None):
@@ -39,6 +40,7 @@ class Quizzer:
 		self.menubar = Menu(root)
 		menu_file = Menu(self.menubar, tearoff=0)
 		menu_file.add_command(label='Open DB', command=self.open_db)
+		menu_file.add_command(label='Font(Question)', command=self.font_choice)
 		menu_file.add_command(label='Exit', command=self.root.quit)
 		self.menubar.add_cascade(label='File', menu=menu_file)
 		## Help
@@ -71,6 +73,18 @@ class Quizzer:
 		self.cb = Checkbutton(root, text='Random', variable=self.is_random)
 		self.cb.grid(row=3, column=1)
 
+	def font_choice(self):
+		font = askfont(self.root)
+		if font:
+			font['family'] = font['family'].replace(' ', '\ ')
+			font_str = "%(family)s %(size)i %(weight)s %(slant)s" % font
+			if font['underline']:
+				font_str += ' underline'
+				
+			if font['overstrike']:
+				font_str += ' overstrike'
+
+			self.text.configure(font=font_str)
 
 	def show_about(self):
 		about_msg = '''
