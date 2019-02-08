@@ -69,9 +69,15 @@ class Quizzer:
 		self.ans.grid(row=2, column=1, sticky=W+E)
 
 		# CheckButton
+		self.frame = Frame(root)
+		self.frame.grid(row=3, column=0, columnspan=3)
 		self.is_random = IntVar()
-		self.cb = Checkbutton(root, text='Random', variable=self.is_random)
-		self.cb.grid(row=3, column=1)
+		self.cb = Checkbutton(self.frame, text='Random', variable=self.is_random)
+		self.cb.pack(side=LEFT)
+
+		self.is_advanced = IntVar()
+		self.cb = Checkbutton(self.frame, text='Advanced', variable=self.is_advanced)
+		self.cb.pack(side=LEFT)
 
 	def font_choice(self):
 		font = askfont(self.root)
@@ -151,9 +157,11 @@ class Quizzer:
 		for r in ws.rows:
 			if not r[0].value:
 				continue
+			if self.is_advanced.get() and not r[2].value:
+				continue
 			tmp_pool[self.qna_sum] = [r[0].value, r[1].value]
 			self.qna_sum += 1
-			#print ('%s %s' % (r[0].value, r[1].value))
+			#print('%s %s %s' % (r[0].value, r[1].value, r[2].value))
 		if 'close' in dir(self.fd_excel):
 			self.fd_excel.close()
 
