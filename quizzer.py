@@ -72,12 +72,12 @@ class Quizzer:
 		self.frame = Frame(root)
 		self.frame.grid(row=3, column=0, columnspan=3)
 		self.is_random = IntVar()
-		self.cb = Checkbutton(self.frame, text='Random', variable=self.is_random)
-		self.cb.pack(side=LEFT)
+		self.cb_random = Checkbutton(self.frame, text='Random', variable=self.is_random)
+		self.cb_random.pack(side=LEFT)
 
 		self.is_advanced = IntVar()
-		self.cb = Checkbutton(self.frame, text='Advanced', variable=self.is_advanced)
-		self.cb.pack(side=LEFT)
+		self.cb_adv = Checkbutton(self.frame, text='Advanced', variable=self.is_advanced)
+		self.cb_adv.pack(side=LEFT)
 
 	def font_choice(self):
 		font = askfont(self.root)
